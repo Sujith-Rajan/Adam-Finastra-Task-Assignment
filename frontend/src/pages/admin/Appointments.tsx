@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, CalendarPlus, Clock, Filter, X } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, CalendarPlus, Clock, Filter } from 'lucide-react';
 import api from '../../api/axios';
 import BookAppointmentModal from '../../components/modals/BookAppointmentModal';
 import EditAppointmentModal from '../../components/modals/EditAppointmentModal';
