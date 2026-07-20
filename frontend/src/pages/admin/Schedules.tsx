@@ -251,9 +251,22 @@ const Schedules: React.FC = () => {
                   const isAvailable = slot.isAvailable;
                   const appointment = !isAvailable ? appointments.find(a => a.slotStartTime === slot.start && a.status !== 'CANCELLED') : null;
                   
+                  let isPast = false;
+                  const today = new Date();
+                  const localDateStr = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+                  if (selectedDate === localDateStr) {
+                    const [slotH, slotM] = slot.start.split(':').map(Number);
+                    const slotMins = slotH * 60 + slotM;
+                    const currentMins = today.getHours() * 60 + today.getMinutes();
+                    if (slotMins < currentMins) {
+                      isPast = true;
+                    }
+                  }
+
                   let bgColor = 'rgba(255,255,255,0.02)';
                   let borderColor = 'var(--border-color)';
                   let textColor = 'var(--text-main)';
+                  let cursor = 'pointer';
                   
                   if (appointment) {
                     if (appointment.status === 'COMPLETED') {
@@ -270,21 +283,31 @@ const Schedules: React.FC = () => {
                       textColor = '#3b82f6';
                     }
                   } else if (isAvailable) {
-                    borderColor = 'var(--primary-color)';
-                    textColor = 'var(--text-main)';
+                    if (isPast) {
+                      borderColor = 'rgba(255,255,255,0.1)';
+                      textColor = 'var(--text-muted)';
+                      cursor = 'not-allowed';
+                    } else {
+                      borderColor = 'var(--primary-color)';
+                      textColor = 'var(--text-main)';
+                    }
                   }
+
+                  const isDisabled = isPast && isAvailable;
 
                   return (
                     <button
                       key={idx}
-                      onClick={() => handleSlotClick(slot)}
+                      onClick={() => !isDisabled && handleSlotClick(slot)}
+                      disabled={isDisabled}
                       style={{
                         background: bgColor,
                         border: `1px solid ${borderColor}`,
                         borderRadius: 'var(--radius-md)',
                         padding: '1rem',
                         textAlign: 'left',
-                        cursor: 'pointer',
+                        cursor: cursor,
+                        opacity: isDisabled ? 0.5 : 1,
                         transition: 'all 0.2s',
                         display: 'flex',
                         flexDirection: 'column',
@@ -304,7 +327,9 @@ const Schedules: React.FC = () => {
                       </div>
                       
                       {isAvailable ? (
-                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>Available</div>
+                        <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                          {isPast ? 'Past Slot' : 'Available'}
+                        </div>
                       ) : appointment ? (
                         <>
                           <div style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
