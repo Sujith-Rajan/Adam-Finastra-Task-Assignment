@@ -138,3 +138,5 @@ backend/dist/
 test-*.ts
 test-*.js
 
+.agents
+
